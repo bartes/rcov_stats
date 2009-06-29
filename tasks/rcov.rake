@@ -15,8 +15,8 @@ namespace :rcov do
   desc "run rcov for functionals and units tests"
   task :stats => RcovStats.before_rcov do
     puts '** rcov:stats **'
-    RcovStats.invoke('units')
-    RcovStats.invoke('functionals')
+    Rake::Task['rcov:units'].invoke
+    Rake::Task['rcov:functionals'].invoke
   end
 
   desc "run general rcov tests"
