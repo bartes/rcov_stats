@@ -1,4 +1,4 @@
-require 'config/environment'
+require File.join(RAILS_ROOT,'config','environment')
 
 module RcovStats
 
@@ -12,24 +12,28 @@ module RcovStats
       RAILS_ROOT
     end
 
-    def get_data
-       YAML::load File.open(File.join(root ,'config','rcov_stats.yml'))
+    def get_config(name)
+      YAML::load(File.open(File.join(root ,'config','rcov_stats.yml')))[name]
+    end
+ 
+    def get_array_data(name)
+       (get_config(name) || []).reject{|d| d.blank?}.uniq
     end
 
-    def units_files_to_cover   # Add extra libs if needs e.g. ["lib/lib_name"]
-      (%w(app/models) + get_data["units_files_to_cover"]).reject{|d| d.blank?}.uniq
+    def units_files_to_cover 
+      get_array_data "units_files_to_cover"
     end
 
-    def functionals_files_to_cover # Add extra libs if needs e.g. ["lib/lib_name"]
-      (%w(app/functionals app/helpers) + get_data["functionals_files_to_cover"]).reject{|d| d.blank?}.uniq
+    def functionals_files_to_cover
+      get_array_data "functionals_files_to_cover"
     end
 
     def units_files_to_test
-      (%w() + get_data["units_files_to_test"]).reject{|d| d.blank?}.uniq
+      get_array_data "units_files_to_test"
     end
 
     def functionals_files_to_test
-      (%w() + get_data["functionals_files_to_test"]).reject{|d| d.blank?}.uniq
+      get_array_data "functionals_files_to_test"
     end
 
     def excluded_paths
@@ -45,8 +49,7 @@ module RcovStats
     end
 
     def before_rcov
-	  pre_rcov = get_data["before_rcov"]
-      pre_rcov.blank? ? "db:test:prepare" : pre_rcov
+      (pre_rcov = get_config("before_rcov")).blank? ? "db:test:prepare" : pre_rcov
     end
 
     def use_rspec?
