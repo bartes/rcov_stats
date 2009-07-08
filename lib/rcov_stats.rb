@@ -1,5 +1,3 @@
-require File.join(RAILS_ROOT,'config','environment')
-
 module RcovStats
 
  class << self
@@ -8,8 +6,18 @@ module RcovStats
       File.join(File.dirname(__FILE__),'..')
     end
 
+    def is_rails?
+      Object.const_defined?('RAILS_ROOT')
+    end
+
+    def is_merb?
+      Object.const_defined?('Merb')
+    end
+
     def root
-      RAILS_ROOT
+      root_dir = RAILS_ROOT if is_rails?
+      root_dir = Merb.root if is_merb?
+      root_dir
     end
 
     def get_config(name)
@@ -49,7 +57,7 @@ module RcovStats
     end
 
     def before_rcov
-      (pre_rcov = get_config("before_rcov")).blank? ? "db:test:prepare" : pre_rcov
+      (pre_rcov = get_config("before_rcov")).blank? ? nil : pre_rcov
     end
 
     def use_rspec?
@@ -161,3 +169,25 @@ module RcovStats
   end
 
 end
+
+require 'fileutils'
+
+unless  Object.const_defined?('RCOV_STATS_ROOT')
+  RCOV_STATS_ROOT = RAILS_ROOT if RcovStats.is_rails?
+  RCOV_STATS_ROOT = Merb.root if RcovStats.is_merb?
+  if RcovStats.is_merb?
+     Merb::Plugins.add_rakefiles(File.join(File.dirname(__FILE__),"rcov_stats_tasks"))
+  end
+end
+
+
+plugin_root = File.dirname(__FILE__)
+config_file = File.join(RCOV_STATS_ROOT,'config','rcov_stats.yml')
+
+unless File.exists?(config_file)
+  use_rspec = File.exists?(File.join(RCOV_STATS_ROOT, 'spec'))
+  config_file_base = (use_rspec ? 'rcov_rspec' : 'rcov_standard') + '.yml'
+  FileUtils.cp(File.join(plugin_root, 'config', config_file_base), config_file)
+end
+
+
