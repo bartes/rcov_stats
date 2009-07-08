@@ -11,8 +11,6 @@ begin
     gemspec.homepage = %q{http://www.lunarlogicpolska.com}
     gemspec.files = Dir['lib/*'] + Dir['tasks/*']  + Dir['config/*'] + %w(README init.rb Rakefile MIT-LICENSE)
     gemspec.summary = %q{Rcov Stats provides rcov extension, so you could select test files and test covered files for units and functionals tests.}
-    gemspec.add_dependency('rake', '>= 0.8.7')
-    gemspec.required_ruby_version = '>= 1.8.6'
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
