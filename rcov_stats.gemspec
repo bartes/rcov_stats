@@ -1,5 +1,4 @@
 begin
-  require 'jeweler'
   Jeweler::Tasks.new do |gemspec|
     gemspec.name = %q{rcov_stats}
     gemspec.version = "1.0.0"
