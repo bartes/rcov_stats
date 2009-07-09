@@ -13,6 +13,10 @@ How to install :
   cd your_application
   gemsonrails
   rake gems:freeze GEM=bartes-rcov_stats
+2) As a gem for Merb:
+  gem install bartes-rcov_stats
+  ## puts this denepndecy inside your config/init.rb file ##
+  dependency "bartes-rcov_stats" , :require_as => 'rcov_stats'
 
 How to configure
 
