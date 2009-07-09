@@ -1,33 +1,31 @@
 RcovStats
 =========
 
-RcovStats provides rcov extension, so you could select test files and test covered files for units and functionals tests.
+RcovStats provides rcov extension, so you can select test files and test covered files for unit and functional tests.
 
 How to install :
 
 1) As a Rails plugin:
   ./script/plugin install git://github.com/bartes/rcov_stats.git
 2) As a gem for Rails:
-  gem install bartes-rcov_stats
-  gem install gemsonrails
+  gem install bartes-rcov_stats gemsonrails
   cd your_application
   gemsonrails
   rake gems:freeze GEM=bartes-rcov_stats
-2) As a gem for Merb:
+3) As a gem for Merb:
   gem install bartes-rcov_stats
   ## puts this denepndecy inside your config/init.rb file ##
   dependency "bartes-rcov_stats" , :require_as => 'rcov_stats'
 
 How to configure
 
-After installation  you can see rcov_stats.yml in /config directory.
+After installation (initialization) you can see rcov_stats.yml in /config directory.
 You can specify there :
-  - files or directories to be covered by units tests to cover (units_files_to_cover)
-  - files or directories to be covered by functionals tests to cover (functionals_files_to_cover)
-  - test files or directories with test files which will be used for units testing (units_files_to_test)
-  - test files or directories with test files which will be used for functionals testing (functionals_files_to_test)
+  - files or directories to be covered by unit tests to cover (units_files_to_cover)
+  - files or directories to be covered by functional tests to cover (functionals_files_to_cover)
+  - test files or directories with test files which will be used for unit testing (units_files_to_test)
+  - test files or directories with test files which will be used for functional testing (functionals_files_to_test)
   - action which will be used before running test suite (before_rcov -> by default db:test:prepare)
-
 
 
 Copyright (c) 2009 [bartes], released under the MIT license

@@ -1,6 +1,6 @@
 Gem::Specification.new do |gemspec|
     gemspec.name = %q{rcov_stats}
-    gemspec.version = "1.1.1"
+    gemspec.version = "1.1.2"
     gemspec.authors = ["Bartosz Knapik"]
     gemspec.date = %q{2009-07-08}
     gemspec.description = %q{Rcov Stats provides rcov extension, so you could select test files and test covered files for units and functionals tests.}
