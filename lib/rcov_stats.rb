@@ -44,10 +44,6 @@ module RcovStats
       get_array_data "functionals_files_to_test"
     end
 
-    def excluded_paths
-      %w(spec gems plugins)
-    end
-
     def igonored_paths
       %w(. .. .svn)
     end
@@ -119,8 +115,7 @@ module RcovStats
     def invoke_rcov_task(options)
       require 'rake/win32'
       files_to_cover = parse_file_to_cover(options[:files_to_cover].uniq).map{|f| "(#{f})".gsub("/","\/")}.join("|")
-      rcov_settings = "--sort coverage --text-summary --rails  -x \"^(?!(#{files_to_cover}))\" "
-      rcov_settings +="--exclude \"#{excluded_paths.map{|p| "#{p}/*"}.join(",")}\" "
+      rcov_settings = "--sort coverage --text-summary -x \"^(?!(#{files_to_cover}))\" "
       rcov_settings +="--output=#{File.join(root,"coverage",options[:output])} " if options[:output]
       rcov_tests = parse_file_to_test(options[:files_to_test].uniq)
       return false if rcov_tests.empty?
@@ -134,12 +129,13 @@ module RcovStats
       rcov_tests = parse_file_to_test(options[:files_to_test].uniq)
       return false if rcov_tests.empty?
       Spec::Rake::SpecTask.new(options[:name]) do |t|
-        t.spec_opts = ['--options', "\"#{File.join(root,'spec','spec.opts')}\""]
+        spec_opts = File.join(root,'spec','spec.opts') 
+        t.spec_opts = ['--options', "\"#{spec_opts}\""] if File.exists?(spec_opts)
         t.spec_files = rcov_tests
         t.rcov = true
         t.rcov_dir =  File.join(root,"coverage",options[:output]) if options[:output]
         files_to_cover = parse_file_to_cover(options[:files_to_cover].uniq).map{|f| "(#{f})".gsub("/","\/")}.join("|")
-        t.rcov_opts = ["--rails","--text-summary","--sort","coverage","--exclude","\"#{excluded_paths.map{|p| "#{p}/*"}.join(",")}\"","-x" , "\"^(?!(#{files_to_cover}))\""]
+        t.rcov_opts = ["--text-summary","--sort","coverage","-x","\"^(?!(#{files_to_cover}))\""]
       end
     end
 

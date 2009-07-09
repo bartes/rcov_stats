@@ -28,4 +28,15 @@ You can specify there :
   - action which will be used before running test suite (before_rcov -> by default db:test:prepare)
 
 
+You can run:
+- rake rcov:stats (includes rcov:units and rcov:functionals)
+- rake rcov:units
+- rake rcov:functionals
+- rake rcov:general (includes rcov:units and rcov:functionals, but counts one general coverage and puts all results in one output directory)
+
+
+You can grab rcov gem with :
+  gem install relevance-rcov
+
+
 Copyright (c) 2009 [bartes], released under the MIT license
