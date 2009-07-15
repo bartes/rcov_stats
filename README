@@ -8,10 +8,9 @@ How to install :
 1) As a Rails plugin:
   ./script/plugin install git://github.com/bartes/rcov_stats.git
 2) As a gem for Rails:
-  gem install bartes-rcov_stats gemsonrails
+  gem install bartes-rcov_stats
   cd your_application
-  gemsonrails
-  rake gems:freeze GEM=bartes-rcov_stats
+  rake gems:unpack GEM=bartes-rcov_stats
 3) As a gem for Merb:
   gem install bartes-rcov_stats
   ## puts this denepndecy inside your config/init.rb file ##
