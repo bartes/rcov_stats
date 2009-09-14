@@ -11,6 +11,8 @@ How to install :
   gem install bartes-rcov_stats
   cd your_application
   rake gems:unpack GEM=bartes-rcov_stats
+  add require(File.join(File.dirname(__FILE__),'vendor','gems','bartes-rcov_stats-1.1.5','lib','rcov_stats_tasks')) in RakeFile.rb
+
 3) As a gem for Merb:
   gem install bartes-rcov_stats
   ## puts this denepndecy inside your config/init.rb file ##

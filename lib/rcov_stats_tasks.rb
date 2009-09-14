@@ -1,4 +1,5 @@
 namespace :rcov do
+  require File.join(File.dirname(__FILE__), "rcov_stats.rb")
   desc "run rcov for units tests"
   task(RcovStats.before_rcov ? ({:units => RcovStats.before_rcov}) : :units ) do
     puts '** rcov:units **'
