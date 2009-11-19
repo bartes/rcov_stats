@@ -8,4 +8,5 @@ Gem::Specification.new do |gemspec|
     gemspec.homepage = %q{http://www.lunarlogicpolska.com}
     gemspec.files = %w(lib/rcov_stats.rb lib/rcov_stats_tasks.rb tasks/rcov.rake config/rcov_standard.yml config/rcov_rspec.yml README init.rb Rakefile MIT-LICENSE)
     gemspec.summary = %q{Rcov Stats provides rcov extension, so you could select test files and test covered files for units and functionals tests.}
+    gemspec.add_dependency 'rcov'
 end
