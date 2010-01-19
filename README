@@ -8,15 +8,18 @@ How to install :
 1) As a Rails plugin:
   ./script/plugin install git://github.com/bartes/rcov_stats.git
 2) As a gem for Rails:
-  gem install bartes-rcov_stats
-  cd your_application
-  rake gems:unpack GEM=bartes-rcov_stats
-  add require(File.join(File.dirname(__FILE__),'vendor','gems','bartes-rcov_stats-1.1.5','lib','rcov_stats_tasks')) in RakeFile.rb
+  gem install bartes-rcov_stats  (from github)
+  or gem install rcov_stats (from gemcutter)
 
+  cd your_application
+  a) as a unpacked gem or bundler gem
+   rake gems:unpack GEM=bartes-rcov_stats
+   add in RakeFile.rb :
+   import(File.join(File.dirname(__FILE__),'vendor','gems',"bartes-rcov_stats*",'tasks','*.rake'))
 3) As a gem for Merb:
   gem install bartes-rcov_stats
-  ## puts this denepndecy inside your config/init.rb file ##
-  dependency "bartes-rcov_stats" , :require_as => 'rcov_stats'
+  a) standard inside your config/init.rb :     dependency "bartes-rcov_stats" , :require_as => 'rcov_stats'  dependency
+  b) with bundler in Gemfile             :     gem "bartes-rcov_stats" , :require_as => 'rcov_stats'
 
 How to configure
 
