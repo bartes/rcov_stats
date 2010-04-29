@@ -24,4 +24,10 @@ namespace :rcov do
     puts '** rcov:general **'
     RcovStats.invoke('general')
   end
+
+  desc "generate index for all suites"
+  task :generate_index do
+    puts '** rcov:generate_index **'
+    RcovStats.generate_index
+  end
 end

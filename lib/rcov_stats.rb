@@ -1,3 +1,6 @@
+require 'fileutils'
+require "rexml/document"
+
 module RcovStats
 
   class << self
@@ -140,11 +143,27 @@ module RcovStats
       end
       use_rspec? ? invoke_rcov_spec_task(options) : invoke_rcov_task(options)
     end
+
+    def generate_index
+      Dir[File.join(File.dirname(__FILE__), '..', 'templates/*')].each do |i|
+         FileUtils.cp(i, File.join(RCOV_STATS_ROOT, 'coverage', i.split("/").last))
+      end
+      ["units"].each do |i|
+        #next unless if File.exists?(File.join(RCOV_STATS_ROOT, 'coverage',i , "index.html"))
+#        str = File.open(File.join(RCOV_STATS_ROOT, 'coverage',i , "index.html"),"r") do |f|
+#          f.read
+#        end
+#        REXML::Document.new(str.gsub(/\<script\>*\&*\<\/script\>/,""),"")
+#        File.open(File.join(RCOV_STATS_ROOT, 'coverage',i , "index.html"),"r") do |f|
+#
+#        end
+#        File.open(File.join(RCOV_STATS_ROOT, 'coverage',"index.html"),"r+") do |f|
+#
+#        end
+      end
+    end
   end
-
 end
-
-require 'fileutils'
 
 unless  Object.const_defined?('RCOV_STATS_ROOT')
   RCOV_STATS_ROOT = RAILS_ROOT if RcovStats.is_rails?
@@ -153,7 +172,6 @@ unless  Object.const_defined?('RCOV_STATS_ROOT')
     Merb::Plugins.add_rakefiles(File.join(File.dirname(__FILE__), "rcov_stats_tasks"))
   end
 end
-
 
 file_path = File.dirname(__FILE__)
 config_file = File.join(RCOV_STATS_ROOT, 'config', 'rcov_stats.yml')
