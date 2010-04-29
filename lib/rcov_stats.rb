@@ -36,7 +36,6 @@ class RcovStats
   end
 
   def get_array_data(type)
-    puts @sections.map{|section| (self.class.get_config("#{section}_#{type}") || []).reject { |d| d.blank? }}.inspect
     @sections.map do |section|
       (self.class.get_config("#{section}_#{type}") || []).reject { |d| d.blank? }
     end.flatten.uniq
