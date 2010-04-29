@@ -134,7 +134,7 @@ module RcovStats
           options[:name] = "rcov:general"
           options[:files_to_cover] = units_files_to_cover.to_a + functionals_files_to_cover.to_a
           options[:files_to_test] = units_files_to_test.to_a + functionals_files_to_test.to_a
-          options[:output] = nil
+          options[:output] = "general"
         else
           raise "Not implemented task for that rcov #{type}"
       end
