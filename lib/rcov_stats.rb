@@ -45,11 +45,15 @@ module RcovStats
     end
 
     def ignored_paths
-      %w(  . .. .svn .git  )
+      %w( . .. .svn .git )
     end
 
     def test_file_indicator
       "*_#{test_name}.rb"
+    end
+
+    def cover_file_indicator
+      "*.rb"
     end
 
     def before_rcov
@@ -64,52 +68,26 @@ module RcovStats
       use_rspec? ? "spec" : "test"
     end
 
-    def parse_file_to_test(file_list)
-      rcov_tests = []
-      file_list.each do |f|
-        dir_or_file = File.join(root, test_name, f)
-        next unless File.exists?(dir_or_file)
-        unless File.directory?(dir_or_file)
-          rcov_tests << File.join(dir_or_file)
-        else
-          sub_elements = Dir.entries(dir_or_file) - ignored_paths
-          next if sub_elements.size.zero?
-          main_tests_not_included = true
-          sub_elements.each do |sub_element|
-            if File.directory?(File.join(dir_or_file, sub_element))
-              rcov_tests << File.join(dir_or_file, sub_element, test_file_indicator)
-            elsif main_tests_not_included
-              rcov_tests << File.join(dir_or_file, test_file_indicator)
-              main_tests_not_included = false
-            end
-          end
+    def parse_file_to_test(list)
+      result = []
+      list.each do |f|
+        file_list = File.directory?(File.join(root, test_name,  f)) ? File.join(test_name, f, "**", test_file_indicator) : File.join(test_name, f)
+        unless (list_of_read_files = Dir[file_list]).empty?
+          result += list_of_read_files
         end
       end
-      rcov_tests
+      result.uniq
     end
 
-    def parse_file_to_cover(file_list)
-      rcov_covers = []
-      file_list.each do |f|
-        dir_or_file = File.join(root, f)
-        next unless File.exists?(dir_or_file)
-        unless File.directory?(dir_or_file)
-          rcov_covers << f
-        else
-          sub_elements = Dir.entries(dir_or_file) - ignored_paths
-          next if sub_elements.size.zero?
-          main_tests_not_included = true
-          sub_elements.each do |sub_element|
-            if File.directory?(File.join(dir_or_file, sub_element))
-              rcov_covers << File.join(f, sub_element)
-            elsif main_tests_not_included
-              rcov_covers << File.join(f)
-              main_tests_not_included = false
-            end
-          end
+    def parse_file_to_cover(list)
+      result = []
+      list.each do |f|
+        file_list = File.directory?(File.join(root, f)) ? File.join(f, "**", cover_file_indicator) : File.join(f)
+        unless (list_of_read_files = Dir[file_list]).empty?
+          result += list_of_read_files
         end
       end
-      rcov_covers
+      result.uniq
     end
 
     def invoke_rcov_task(options)
@@ -144,18 +122,18 @@ module RcovStats
       case type.to_s
         when "units"
           options[:name] = "rcov:units"
-          options[:files_to_cover] = units_files_to_cover
-          options[:files_to_test] = units_files_to_test
+          options[:files_to_cover] = units_files_to_cover.to_a
+          options[:files_to_test] = units_files_to_test.to_a
           options[:output] = "units"
         when "functionals"
           options[:name] = "rcov:functionals"
-          options[:files_to_cover] = functionals_files_to_cover
-          options[:files_to_test] = functionals_files_to_test
+          options[:files_to_cover] = functionals_files_to_cover.to_a
+          options[:files_to_test] = functionals_files_to_test.to_a
           options[:output] = "functionals"
         when "general"
           options[:name] = "rcov:general"
-          options[:files_to_cover] = units_files_to_cover + functionals_files_to_cover
-          options[:files_to_test] = units_files_to_test + functionals_files_to_test
+          options[:files_to_cover] = units_files_to_cover.to_a + functionals_files_to_cover.to_a
+          options[:files_to_test] = units_files_to_test.to_a + functionals_files_to_test.to_a
           options[:output] = nil
         else
           raise "Not implemented task for that rcov #{type}"
