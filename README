@@ -8,15 +8,24 @@ How to install :
 1) As a Rails plugin:
   ./script/plugin install git://github.com/bartes/rcov_stats.git
 2) As a gem for Rails:
-  gem install bartes-rcov_stats
+  gem install rcov_stats
   cd your_application
-  rake gems:unpack GEM=bartes-rcov_stats
-  add require(File.join(File.dirname(__FILE__),'vendor','gems','bartes-rcov_stats-1.1.5','lib','rcov_stats_tasks')) in RakeFile.rb
-
+  rake gems:unpack GEM=rcov_stats
+  #add in RakeFile.rb
+  Dir[File.dirname(__FILE__) + "/vendor/gems/**/rcov_stats*/tasks/*.rake"].each do |f|
+    import f
+  end
 3) As a gem for Merb:
-  gem install bartes-rcov_stats
-  ## puts this denepndecy inside your config/init.rb file ##
-  dependency "bartes-rcov_stats" , :require_as => 'rcov_stats'
+  gem install rcov_stats #from gemcutter
+  ## puts this dependency inside your config/init.rb file ##
+  dependency "rcov_stats"
+5) for bundler
+  ## puts this into Gemfile file ##
+  gem "rcov_stats"
+  #add in RakeFile.rb
+  Dir[File.dirname(__FILE__) + "/vendor/bundler_gems/**/rcov_stats*/tasks/*.rake"].each do |f|
+    import f
+  end
 
 How to configure
 
@@ -37,7 +46,7 @@ You can run:
 
 
 You can grab rcov gem with :
-  gem install relevance-rcov
+  gem install rcov
 
 
 Copyright (c) 2009 [bartes], released under the MIT license
