@@ -22,7 +22,7 @@ namespace :rcov do
   desc "run general rcov tests"
   task(RcovStats.before_rcov ? ({:general => RcovStats.before_rcov}) : :general) do
     puts '** rcov:general **'
-    RcovStats.new('general',["units", "functionals"])
+    RcovStats.new('general',["units", "functionals"]).invoke
   end
 
   desc "generate index for all suites"
