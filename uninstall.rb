@@ -1,3 +1,4 @@
+#TODO : improve that
 require 'fileutils'
 
 config_file = File.join(RAILS_ROOT, 'config', 'rcov_stats.yml')

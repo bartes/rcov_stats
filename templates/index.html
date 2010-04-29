@@ -18,7 +18,7 @@
         <label>File Filter:</label>
         <select id="file_filter" class="filter">
           <option value="all_files">Show All</option>
-          <option value="units">units/</option><option value="functionals">functionals/</option><option value="general">general/</option>
+          <option value="units">units</option><option value="functionals">functionals</option>
         </select>
       </fieldset>
       <fieldset>
@@ -52,56 +52,41 @@
           </tr>
         </thead>
         <tbody>
-            <tr class="all_files all_coverage 60 70 80 90 100 even">
+            <tr class="all_files all_coverage 60 70 80 90 100 even units">
               <td class="left_align"><a href="units/index.html">units</a></td>
               <td class='right_align'><tt>units_total_lines</tt></td>
               <td class='right_align'><tt>units_code_lines</tt></td>
-              <td class="left_align"><div class="percent_graph_legend"><tt class=''>units_total_result]%</tt></div>
+              <td class="left_align"><div class="percent_graph_legend"><tt class=''>units_total_result</tt></div>
           <div class="percent_graph">
-            <div class="covered" style="width:[units_total_result_short]px"></div>
-            <div class="uncovered" style="width:[units_total_result_short_left]px"></div>
+            <div class="covered" style="units_total_rpx"></div>
+            <div class="uncovered" style="units_total_lrpx"></div>
           </div></td>
-              <td class="left_align"><div class="percent_graph_legend"><tt class=''>units_code_result%</tt></div>
+              <td class="left_align"><div class="percent_graph_legend"><tt class=''>units_code_result</tt></div>
           <div class="percent_graph">
-            <div class="covered" style="width:[units_code_result_short_left]px"></div>
-            <div class="uncovered" style="width:[units_code_result_short_left]px"></div>
+            <div class="covered" style="units_total_cpx"></div>
+            <div class="uncovered" style="units_total_lcpx"></div>
           </div></td>
             </tr>
-            <tr class="all_files all_coverage 100 odd">
+            <tr class="all_files all_coverage 100 odd functionals">
               <td class="left_align"><a href="functionals/index.html">functionals</a></td>
-              <td class='right_align'><tt>47</tt></td>
-              <td class='right_align'><tt>26</tt></td>
-              <td class="left_align"><div class="percent_graph_legend"><tt class=''>95.74%</tt></div>
+              <td class='right_align'><tt>functionals_total_lines</tt></td>
+              <td class='right_align'><tt>functionals_code_lines</tt></td>
+              <td class="left_align"><div class="percent_graph_legend"><tt class=''>functionals_total_result</tt></div>
           <div class="percent_graph">
-            <div class="covered" style="width:96px"></div>
-            <div class="uncovered" style="width:4px"></div>
+            <div class="covered" style="functionals_total_rpx"></div>
+            <div class="uncovered" style="functionals_total_lrpx"></div>
           </div></td>
-              <td class="left_align"><div class="percent_graph_legend"><tt class=''>92.31%</tt></div>
+              <td class="left_align"><div class="percent_graph_legend"><tt class=''>functionals_code_result</tt></div>
           <div class="percent_graph">
-            <div class="covered" style="width:92px"></div>
-            <div class="uncovered" style="width:8px"></div>
-          </div></td>
-            </tr>
-            <tr class="all_files all_coverage 100 even">
-              <td class="left_align"><a href="general/index.html">general</a></td>
-              <td class='right_align'><tt>47</tt></td>
-              <td class='right_align'><tt>26</tt></td>
-              <td class="left_align"><div class="percent_graph_legend"><tt class=''>95.74%</tt></div>
-          <div class="percent_graph">
-            <div class="covered" style="width:96px"></div>
-            <div class="uncovered" style="width:4px"></div>
-          </div></td>
-              <td class="left_align"><div class="percent_graph_legend"><tt class=''>92.31%</tt></div>
-          <div class="percent_graph">
-            <div class="covered" style="width:92px"></div>
-            <div class="uncovered" style="width:8px"></div>
+            <div class="covered" style="functionals_total_cpx"></div>
+            <div class="uncovered" style="functionals_total_lcpx"></div>
           </div></td>
             </tr>
         </tbody>
       </table>
     </div>
     
-    <p>Generated on Thu Apr 29 13:04:54 +0200 2010 with <a href="http://github.com/relevance/rcov">rcov 0.9.8</a></p>
+    <p>Generated on Thu Apr 29 13:04:54 +0200 2010</p>
 
     <script type="text/javascript">
 	      $(document).ready(function(){$("#report_table").tablesorter({widgets: ['zebra'], textExtraction: 'complex'});});

@@ -1,185 +1,148 @@
 require 'fileutils'
 require "rexml/document"
 
-module RcovStats
+class RcovStats
 
-  class << self
+  TYPES = ["units", "functionals"]
 
-    def plugin_root
-      File.join(File.dirname(__FILE__), '..')
-    end
+  def self.cattr_accessor_with_default(name, value = nil)
+    cattr_accessor name
+    self.send("#{name}=", value) if value
+  end
 
-    def is_rails?
-      Object.const_defined?('RAILS_ROOT')
-    end
+  cattr_accessor_with_default :is_rails, Object.const_defined?('Rails')
+  cattr_accessor_with_default :is_merb, Object.const_defined?('Merb')
+  cattr_accessor_with_default :root, (@@is_rails && Rails.root) or (@@is_merb && Merb.root) or nil
+  cattr_accessor_with_default :rcov_stats_dir, File.dirname(__FILE__)
+  cattr_accessor_with_default :rcov_stats_config_file, File.join(@@root, 'config', 'rcov_stats.yml')
+  cattr_accessor_with_default :use_rspec, File.exists?(File.join(@@root, 'spec'))
+  cattr_accessor_with_default :test_name, @@use_rspec ? "spec" : "test"
+  cattr_accessor_with_default :test_file_indicator, "*_#{@@test_name}.rb"
+  cattr_accessor_with_default :cover_file_indicator, "*.rb"
 
-    def is_merb?
-      Object.const_defined?('Merb')
-    end
+  attr_accessor :name, :sections
 
-    def root
-      root_dir = RAILS_ROOT if is_rails?
-      root_dir = Merb.root if is_merb?
-      root_dir
-    end
+  def initialize(name_, sections_ = nil)
+    self.name = name_
+    self.sections = sections_.blank? ? [name_] : sections_
+  end
 
-    def get_config(name)
-      YAML::load(File.open(File.join(root, 'config', 'rcov_stats.yml')))[name]
-    end
+  def self.get_config(option)
+    YAML::load(File.open(File.join(@@root, 'config', 'rcov_stats.yml')))[option]
+  end
 
-    def get_array_data(name)
-      (get_config(name) || []).reject { |d| d.blank? }.uniq
-    end
+  def self.before_rcov
+    (pre_rcov = get_config("before_rcov")).blank? ? nil : pre_rcov
+  end
 
-    def units_files_to_cover
-      get_array_data "units_files_to_cover"
-    end
+  def get_array_data(type)
+    puts @sections.map{|section| (self.class.get_config("#{section}_#{type}") || []).reject { |d| d.blank? }}.inspect
+    @sections.map do |section|
+      (self.class.get_config("#{section}_#{type}") || []).reject { |d| d.blank? }
+    end.flatten.uniq
+  end
 
-    def functionals_files_to_cover
-      get_array_data "functionals_files_to_cover"
-    end
+  def files_to_cover
+    get_array_data "files_to_cover"
+  end
 
-    def units_files_to_test
-      get_array_data "units_files_to_test"
-    end
+  def files_to_test
+    get_array_data "files_to_test"
+  end
 
-    def functionals_files_to_test
-      get_array_data "functionals_files_to_test"
-    end
-
-    def ignored_paths
-      %w( . .. .svn .git )
-    end
-
-    def test_file_indicator
-      "*_#{test_name}.rb"
-    end
-
-    def cover_file_indicator
-      "*.rb"
-    end
-
-    def before_rcov
-      (pre_rcov = get_config("before_rcov")).blank? ? nil : pre_rcov
-    end
-
-    def use_rspec?
-      File.exists?(File.join(root, 'spec'))
-    end
-
-    def test_name
-      use_rspec? ? "spec" : "test"
-    end
-
-    def parse_file_to_test(list)
-      result = []
-      list.each do |f|
-        file_list = File.directory?(File.join(root, test_name,  f)) ? File.join(test_name, f, "**", test_file_indicator) : File.join(test_name, f)
-        unless (list_of_read_files = Dir[file_list]).empty?
-          result += list_of_read_files
-        end
-      end
-      result.uniq
-    end
-
-    def parse_file_to_cover(list)
-      result = []
-      list.each do |f|
-        file_list = File.directory?(File.join(root, f)) ? File.join(f, "**", cover_file_indicator) : File.join(f)
-        unless (list_of_read_files = Dir[file_list]).empty?
-          result += list_of_read_files
-        end
-      end
-      result.uniq
-    end
-
-    def invoke_rcov_task(options)
-      require 'rake/win32'
-      files_to_cover = parse_file_to_cover(options[:files_to_cover].uniq).map { |f| "(#{f})".gsub("/", "\/") }.join("|")
-      rcov_settings = "--sort coverage --text-summary -x \"^(?!(#{files_to_cover}))\" "
-      rcov_settings +="--output=#{File.join(root, "coverage", options[:output])} " if options[:output]
-      rcov_tests = parse_file_to_test(options[:files_to_test].uniq)
-      return false if rcov_tests.empty?
-      rcov_settings += rcov_tests.join(' ')
-      cmd = "rcov #{rcov_settings}"
-      Rake::Win32.windows? ? Rake::Win32.rake_system(cmd) : system(cmd)
-    end
-
-    def invoke_rcov_spec_task(options)
-      require 'spec/rake/spectask'
-      rcov_tests = parse_file_to_test(options[:files_to_test].uniq)
-      return false if rcov_tests.empty?
-      Spec::Rake::SpecTask.new(options[:name]) do |t|
-        spec_opts = File.join(root, 'spec', 'spec.opts')
-        t.spec_opts = ['--options', "\"#{spec_opts}\""] if File.exists?(spec_opts)
-        t.spec_files = rcov_tests
-        t.rcov = true
-        t.rcov_dir =  File.join(root, "coverage", options[:output]) if options[:output]
-        files_to_cover = parse_file_to_cover(options[:files_to_cover].uniq).map { |f| "(#{f})".gsub("/", "\/") }.join("|")
-        t.rcov_opts = ["--text-summary", "--sort", "coverage", "-x", "\"^(?!(#{files_to_cover}))\""]
+  def parse_file_to_test(list)
+    result = []
+    list.each do |f|
+      file_list = File.directory?(File.join(@@root, @@test_name, f)) ? File.join(@@test_name, f, "**", @@test_file_indicator) : File.join(@@test_name, f)
+      unless (list_of_read_files = Dir[file_list]).empty?
+        result += list_of_read_files
       end
     end
+    result.uniq
+  end
 
-    def invoke(type)
-      options = {}
-      case type.to_s
-        when "units"
-          options[:name] = "rcov:units"
-          options[:files_to_cover] = units_files_to_cover.to_a
-          options[:files_to_test] = units_files_to_test.to_a
-          options[:output] = "units"
-        when "functionals"
-          options[:name] = "rcov:functionals"
-          options[:files_to_cover] = functionals_files_to_cover.to_a
-          options[:files_to_test] = functionals_files_to_test.to_a
-          options[:output] = "functionals"
-        when "general"
-          options[:name] = "rcov:general"
-          options[:files_to_cover] = units_files_to_cover.to_a + functionals_files_to_cover.to_a
-          options[:files_to_test] = units_files_to_test.to_a + functionals_files_to_test.to_a
-          options[:output] = "general"
-        else
-          raise "Not implemented task for that rcov #{type}"
+  def parse_file_to_cover(list)
+    result = []
+    list.each do |f|
+      file_list = File.directory?(File.join(@@root, f)) ? File.join(f, "**", @@cover_file_indicator) : File.join(f)
+      unless (list_of_read_files = Dir[file_list]).empty?
+        result += list_of_read_files
       end
-      use_rspec? ? invoke_rcov_spec_task(options) : invoke_rcov_task(options)
     end
+    result.uniq
+  end
 
-    def generate_index
-      Dir[File.join(File.dirname(__FILE__), '..', 'templates/*')].each do |i|
-         FileUtils.cp(i, File.join(RCOV_STATS_ROOT, 'coverage', i.split("/").last))
+  def invoke_rcov_task
+    require 'rake/win32'
+    files_to_cover_parsed = parse_file_to_cover(files_to_cover).map { |f| "(#{f})".gsub("/", "\/") }.join("|")
+    rcov_settings = "--sort coverage --text-summary -x \"^(?!(#{files_to_cover_parsed}))\" "
+    rcov_settings +="--output=#{File.join(@@root, "coverage", @name)} "
+    rcov_tests = parse_file_to_test(files_to_test)
+    return false if rcov_tests.empty?
+    rcov_settings += rcov_tests.join(' ')
+    cmd = "rcov #{rcov_settings}"
+    Rake::Win32.windows? ? Rake::Win32.rake_system(cmd) : system(cmd)
+  end
+
+  def invoke_rcov_spec_task
+    require 'spec/rake/spectask'
+    rcov_tests = parse_file_to_test(files_to_test)
+    return false if rcov_tests.empty?
+    Spec::Rake::SpecTask.new(@name) do |t|
+      spec_opts = File.join(@@root, @@test_name, 'spec.opts')
+      t.spec_opts = ['--options', "\"#{spec_opts}\""] if File.exists?(spec_opts)
+      t.spec_files = rcov_tests
+      t.rcov = true
+      t.rcov_dir =  File.join(@@root, "coverage", @name)
+      files_to_cover_parsed = parse_file_to_cover(files_to_cover).map { |f| "(#{f})".gsub("/", "\/") }.join("|")
+      t.rcov_opts = ["--text-summary", "--sort", "coverage", "-x", "\"^(?!(#{files_to_cover_parsed}))\""]
+    end
+  end
+
+  def invoke
+    @@use_rspec ? invoke_rcov_spec_task : invoke_rcov_task
+  end
+
+  def generate_index
+    Dir[File.join(@@rcov_stats_dir, '..', 'templates/*')].each do |i|
+      FileUtils.cp(i, File.join(@@root, 'coverage', i.split("/").last))
+    end
+    @sections.each do |i|
+      coverage_index = File.join(@@root, 'coverage', i, "index.html")
+      next unless File.exists?(coverage_index)
+      isource = IO.read(coverage_index)
+      idoc = REXML::Document.new(isource.gsub(/\&/, ""))
+      footer_tts = idoc.get_elements("//tfoot/tr/td//tt")
+      footer_div_covered = idoc.get_elements("//tfoot/tr/td//div[@class='covered']")
+      footer_div_uncovered = idoc.get_elements("//tfoot/tr/td//div[@class='uncovered']")
+      curr_source = IO.read(File.join(@@root, 'coverage', "index.html"))
+      curr_source.gsub!("#{i}_total_lines", footer_tts[0].text)
+      curr_source.gsub!("#{i}_code_lines", footer_tts[1].text)
+      curr_source.gsub!("#{i}_total_result", footer_tts[2].text)
+      curr_source.gsub!("#{i}_code_result", footer_tts[3].text)
+      curr_source.gsub!("#{i}_total_rpx", footer_div_covered[0].attribute("style").value)
+      curr_source.gsub!("#{i}_total_cpx", footer_div_covered[1].attribute("style").value)
+      curr_source.gsub!("#{i}_total_lrpx", footer_div_uncovered[0].attribute("style").value)
+      curr_source.gsub!("#{i}_total_lcpx", footer_div_uncovered[1].attribute("style").value)
+      curr_source.gsub!(/\<p\>*\<\/p\>/, "Generated on #{Time.now}")
+      File.open(File.join(@@root, 'coverage', "index.html"), "w+") do |f|
+        f.write(curr_source)
       end
-      ["units"].each do |i|
-        #next unless if File.exists?(File.join(RCOV_STATS_ROOT, 'coverage',i , "index.html"))
-#        str = File.open(File.join(RCOV_STATS_ROOT, 'coverage',i , "index.html"),"r") do |f|
-#          f.read
-#        end
-#        REXML::Document.new(str.gsub(/\<script\>*\&*\<\/script\>/,""),"")
-#        File.open(File.join(RCOV_STATS_ROOT, 'coverage',i , "index.html"),"r") do |f|
-#
-#        end
-#        File.open(File.join(RCOV_STATS_ROOT, 'coverage',"index.html"),"r+") do |f|
-#
-#        end
-      end
+    end
+  end
+
+  def self.setup
+    if @@is_merb
+      Merb::Plugins.add_rakefiles(File.join(@@rcov_stats_dir, "rcov_stats_tasks"))
+    end
+    unless File.exists?(@@rcov_stats_config_file)
+      which_conf_use = (@@use_rspec ? 'rcov_rspec' : 'rcov_standard') + '.yml'
+      FileUtils.cp(File.join(@@rcov_stats_dir, '..', 'config', which_conf_use), @@rcov_stats_config_file)
     end
   end
 end
 
-unless  Object.const_defined?('RCOV_STATS_ROOT')
-  RCOV_STATS_ROOT = RAILS_ROOT if RcovStats.is_rails?
-  RCOV_STATS_ROOT = Merb.root if RcovStats.is_merb?
-  if RcovStats.is_merb?
-    Merb::Plugins.add_rakefiles(File.join(File.dirname(__FILE__), "rcov_stats_tasks"))
-  end
-end
+RcovStats.setup
 
-file_path = File.dirname(__FILE__)
-config_file = File.join(RCOV_STATS_ROOT, 'config', 'rcov_stats.yml')
-
-unless File.exists?(config_file)
-  use_rspec = File.exists?(File.join(RCOV_STATS_ROOT, 'spec'))
-  config_file_base = (use_rspec ? 'rcov_rspec' : 'rcov_standard') + '.yml'
-  FileUtils.cp(File.join(file_path, '..', 'config', config_file_base), config_file)
-end
 
 

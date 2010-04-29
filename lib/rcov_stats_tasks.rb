@@ -3,13 +3,13 @@ namespace :rcov do
   desc "run rcov for units tests"
   task(RcovStats.before_rcov ? ({:units => RcovStats.before_rcov}) : :units) do
     puts '** rcov:units **'
-    RcovStats.invoke('units')
+    RcovStats.new('units').invoke
   end
 
   desc "run rcov for functionals tests"
   task(RcovStats.before_rcov ? ({:functionals => RcovStats.before_rcov}) : :functionals) do
     puts '** rcov:functionals **'
-    RcovStats.invoke('functionals')
+    RcovStats.new('functionals').invoke
   end
 
   desc "run rcov for functionals and units tests"
@@ -22,12 +22,12 @@ namespace :rcov do
   desc "run general rcov tests"
   task(RcovStats.before_rcov ? ({:general => RcovStats.before_rcov}) : :general) do
     puts '** rcov:general **'
-    RcovStats.invoke('general')
+    RcovStats.new('general',["units", "functionals"])
   end
 
   desc "generate index for all suites"
   task :generate_index do
     puts '** rcov:generate_index **'
-    RcovStats.generate_index
+    RcovStats.new('general',["units", "functionals"]).generate_index
   end
 end

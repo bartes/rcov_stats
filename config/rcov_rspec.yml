@@ -9,3 +9,5 @@ functionals_files_to_test:
   - controllers
   - helpers
 before_rcov: db:test:prepare
+
+#you can select files also this way app/*/*.rb
