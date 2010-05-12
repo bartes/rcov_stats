@@ -12,7 +12,7 @@ class RcovStats
 
   cattr_accessor_with_default :is_rails, Object.const_defined?('Rails')
   cattr_accessor_with_default :is_merb, Object.const_defined?('Merb')
-  cattr_accessor_with_default :root, (@@is_rails && Rails.root) or (@@is_merb && Merb.root) or nil
+  cattr_accessor_with_default :root, ((@@is_rails && Rails.root) or (@@is_merb && Merb.root) or nil)
   cattr_accessor_with_default :rcov_stats_dir, File.dirname(__FILE__)
   cattr_accessor_with_default :rcov_stats_config_file, File.join(@@root, 'config', 'rcov_stats.yml')
   cattr_accessor_with_default :use_rspec, File.exists?(File.join(@@root, 'spec'))

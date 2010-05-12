@@ -17,6 +17,7 @@ namespace :rcov do
     puts '** rcov:stats **'
     Rake::Task['rcov:units'].invoke
     Rake::Task['rcov:functionals'].invoke
+    Rake::Task['rcov:generate_index'].invoke
   end
 
   desc "run general rcov tests"
