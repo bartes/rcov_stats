@@ -1,5 +1,6 @@
 require "fileutils"
 require "erb"
+require "hpricot"
 
 class RcovStatsForErb
 
