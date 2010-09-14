@@ -1,0 +1,8 @@
+2.1.0 (September 2010)
+  replaced ReXML with Hpricot
+  made it working only with bundler > 0.9
+  made it working with rcov 0.9.9
+2.0.1 (May 2010)
+  fixed bug for merb with wrong bracket use
+2.0.0 (April 2010)
+  refactor

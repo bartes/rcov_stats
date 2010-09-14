@@ -5,7 +5,7 @@
     <title>C0 Coverage Information - RCov</title>
     <link href="screen.css" media="all" rel="stylesheet" type="text/css" />
     <link href="print.css" media="print" rel="stylesheet" type="text/css" />
-    
+
     <script type="text/javascript" src="jquery-1.3.2.min.js"></script>
     <script type="text/javascript" src="jquery.tablesorter.min.js"></script>
     <script type="text/javascript" src="rcov.js"></script>
@@ -39,7 +39,7 @@
         </select>
       </fieldset>
     </div>
-    
+
     <div class="report_table_wrapper">
       <table class='report' id='report_table'>
         <thead>
@@ -54,46 +54,46 @@
         <tbody>
             <tr class="all_files all_coverage 60 70 80 90 100 even units">
               <td class="left_align"><a href="units/index.html">units</a></td>
-              <td class='right_align'><tt>units_total_lines</tt></td>
-              <td class='right_align'><tt>units_code_lines</tt></td>
-              <td class="left_align"><div class="percent_graph_legend"><tt class=''>units_total_result</tt></div>
+              <td class='right_align'><tt><%= @units_total_lines %></tt></td>
+              <td class='right_align'><tt><%= @units_code_lines %></tt></td>
+              <td class="left_align"><div class="percent_graph_legend"><tt class=''><%= @units_total_result %></tt></div>
           <div class="percent_graph">
-            <div class="covered" style="units_total_rpx"></div>
-            <div class="uncovered" style="units_total_lrpx"></div>
+            <div class="covered" style="<%= @units_total_rpx %>"></div>
+            <div class="uncovered" style="<%= @units_total_lrpx %>"></div>
           </div></td>
-              <td class="left_align"><div class="percent_graph_legend"><tt class=''>units_code_result</tt></div>
+              <td class="left_align"><div class="percent_graph_legend"><tt class=''><%= @units_code_result %></tt></div>
           <div class="percent_graph">
-            <div class="covered" style="units_total_cpx"></div>
-            <div class="uncovered" style="units_total_lcpx"></div>
+            <div class="covered" style="<%= @units_total_cpx %>"></div>
+            <div class="uncovered" style="<%= @units_total_lcpx %>"></div>
           </div></td>
             </tr>
             <tr class="all_files all_coverage 100 odd functionals">
               <td class="left_align"><a href="functionals/index.html">functionals</a></td>
-              <td class='right_align'><tt>functionals_total_lines</tt></td>
-              <td class='right_align'><tt>functionals_code_lines</tt></td>
-              <td class="left_align"><div class="percent_graph_legend"><tt class=''>functionals_total_result</tt></div>
+              <td class='right_align'><tt><%= @functionals_total_lines %></tt></td>
+              <td class='right_align'><tt><%= @functionals_code_lines %></tt></td>
+              <td class="left_align"><div class="percent_graph_legend"><tt class=''><%= @functionals_total_result %></tt></div>
           <div class="percent_graph">
-            <div class="covered" style="functionals_total_rpx"></div>
-            <div class="uncovered" style="functionals_total_lrpx"></div>
+            <div class="covered" style="<%= @functionals_total_rpx %>"></div>
+            <div class="uncovered" style="<%= @functionals_total_lrpx %>"></div>
           </div></td>
-              <td class="left_align"><div class="percent_graph_legend"><tt class=''>functionals_code_result</tt></div>
+              <td class="left_align"><div class="percent_graph_legend"><tt class=''><%= @functionals_code_result %></tt></div>
           <div class="percent_graph">
-            <div class="covered" style="functionals_total_cpx"></div>
-            <div class="uncovered" style="functionals_total_lcpx"></div>
+            <div class="covered" style="<%= @functionals_total_cpx %>"></div>
+            <div class="uncovered" style="<%= @functionals_total_lcpx %>"></div>
           </div></td>
             </tr>
         </tbody>
       </table>
     </div>
-    
-    <p>Generated on Thu Apr 29 13:04:54 +0200 2010</p>
+
+    <p><%= @generated_on %></p>
 
     <script type="text/javascript">
 	      $(document).ready(function(){$("#report_table").tablesorter({widgets: ['zebra'], textExtraction: 'complex'});});
 	      $('.filter').change(function(){
 	        ff = $('#file_filter').val();
 	        cf = $('#coverage_filter').val();
-	        $('table#report_table tbody tr').each(function(i){ 
+	        $('table#report_table tbody tr').each(function(i){
 	          if ((this.className.split(" ").indexOf(ff) > -1) && (this.className.split(" ").indexOf(cf) > -1)) {
 	            this.style.display = "";
 	          } else {

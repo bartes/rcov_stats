@@ -5,27 +5,14 @@ RcovStats provides rcov extension, so you can select test files and test covered
 
 How to install :
 
-1) As a Rails plugin:
-  ./script/plugin install git://github.com/bartes/rcov_stats.git
-2) As a gem for Rails:
-  gem install rcov_stats
-  cd your_application
-  rake gems:unpack GEM=rcov_stats
-  #add in RakeFile.rb
-  Dir[File.dirname(__FILE__) + "/vendor/gems/**/rcov_stats*/tasks/*.rake"].each do |f|
-    import f
-  end
-3) As a gem for Merb:
+** for Merb:
   gem install rcov_stats #from gemcutter
   ## puts this dependency inside your config/init.rb file ##
   dependency "rcov_stats"
-5) for bundler
+** for Rails
   ## puts this into Gemfile file ##
   gem "rcov_stats"
-  #add in RakeFile.rb
-  Dir[File.dirname(__FILE__) + "/vendor/bundler_gems/**/rcov_stats*/tasks/*.rake"].each do |f|
-    import f
-  end
+
 
 How to configure
 
@@ -44,9 +31,6 @@ You can run:
 - rake rcov:functionals
 - rake rcov:general (includes rcov:units and rcov:functionals, but counts one general coverage and puts all results in one output directory)
 
-
-You can grab rcov gem with :
-  gem install rcov
 
 
 Copyright (c) 2010 [bartes], released under the MIT license

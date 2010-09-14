@@ -1,5 +1,20 @@
-require 'fileutils'
-require "rexml/document"
+require "fileutils"
+require "erb"
+
+class RcovStatsForErb
+
+  def initialize( options )
+    options.each_pair do |key, value|
+      instance_variable_set(:"@#{key}",value)
+    end
+  end
+
+  def get_binding
+    binding
+  end
+
+end
+
 
 class RcovStats
 
@@ -79,7 +94,7 @@ class RcovStats
     rcov_tests = parse_file_to_test(files_to_test)
     return false if rcov_tests.empty?
     rcov_settings += rcov_tests.join(' ')
-    cmd = "rcov #{rcov_settings}"
+    cmd = "bundle exec rcov #{rcov_settings}"
     Rake::Win32.windows? ? Rake::Win32.rake_system(cmd) : system(cmd)
   end
 
@@ -106,26 +121,33 @@ class RcovStats
     Dir[File.join(@@rcov_stats_dir, '..', 'templates/*')].each do |i|
       FileUtils.cp(i, File.join(@@root, 'coverage', i.split("/").last))
     end
+
+
+
     @sections.each do |i|
       coverage_index = File.join(@@root, 'coverage', i, "index.html")
       next unless File.exists?(coverage_index)
-      isource = IO.read(coverage_index)
-      idoc = REXML::Document.new(isource.gsub(/\&/, ""))
-      footer_tts = idoc.get_elements("//tfoot/tr/td//tt")
-      footer_div_covered = idoc.get_elements("//tfoot/tr/td//div[@class='covered']")
-      footer_div_uncovered = idoc.get_elements("//tfoot/tr/td//div[@class='uncovered']")
-      curr_source = IO.read(File.join(@@root, 'coverage', "index.html"))
-      curr_source.gsub!("#{i}_total_lines", footer_tts[0].text)
-      curr_source.gsub!("#{i}_code_lines", footer_tts[1].text)
-      curr_source.gsub!("#{i}_total_result", footer_tts[2].text)
-      curr_source.gsub!("#{i}_code_result", footer_tts[3].text)
-      curr_source.gsub!("#{i}_total_rpx", footer_div_covered[0].attribute("style").value)
-      curr_source.gsub!("#{i}_total_cpx", footer_div_covered[1].attribute("style").value)
-      curr_source.gsub!("#{i}_total_lrpx", footer_div_uncovered[0].attribute("style").value)
-      curr_source.gsub!("#{i}_total_lcpx", footer_div_uncovered[1].attribute("style").value)
-      curr_source.gsub!(/\<p\>*\<\/p\>/, "Generated on #{Time.now}")
+      doc = open(coverage_index) { |f| Hpricot(f) }
+      footer_tts = doc.search("//tfoot/tr/td//tt")
+      footer_div_covered = doc.search("//tfoot/tr/td//div[@class='covered']")
+      footer_div_uncovered = doc.search("//tfoot/tr/td//div[@class='uncovered']")
+
+      template_object = {}
+      template_object["#{i}_total_lines"] = footer_tts[0].inner_text
+      template_object["#{i}_code_lines"] =  footer_tts[1].inner_text
+      template_object["#{i}_total_result"] = footer_tts[2].inner_text
+      template_object["#{i}_code_result"] =  footer_tts[3].inner_text
+      template_object["#{i}_total_rpx"] =  footer_div_covered[0].get_attribute("style")
+      template_object["#{i}_total_cpx"] =  footer_div_covered[1].get_attribute("style")
+      template_object["#{i}_total_lrpx"] = footer_div_uncovered[0].get_attribute("style")
+      template_object["#{i}_total_lcpx"] =  footer_div_uncovered[1].get_attribute("style")
+      template_object["generated_on"] = "Generated on #{Time.now}"
+
+
+      template_source = ERB.new(IO.read(File.join(@@root, 'coverage', "index.html")))
+
       File.open(File.join(@@root, 'coverage', "index.html"), "w+") do |f|
-        f.write(curr_source)
+        f.write( template_source.result(RcovStatsForErb.new(template_object).get_binding))
       end
     end
   end
@@ -142,6 +164,3 @@ class RcovStats
 end
 
 RcovStats.setup
-
-
-
