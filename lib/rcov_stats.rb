@@ -14,7 +14,6 @@ class RcovStats
 
   cattr_accessor_with_default :is_rails, defined?(Rails)
   cattr_accessor_with_default :is_merb, defined?(Merb)
-  #cattr_accessor_with_default :root, ((is_rails && Rails.root) or (is_merb && Merb.root) or nil)
 
   def self.root
     "."

@@ -1,3 +1,8 @@
+2.2.0 (September 2010)
+  fixed root paths
+  added rspec2 support
+  added support of no bundler
+  some code improvements
 2.1.1 (September 2010)
   missing require
 2.1.0 (September 2010)

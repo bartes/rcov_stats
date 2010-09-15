@@ -6,12 +6,19 @@ RcovStats provides rcov extension, so you can select test files and test covered
 How to install :
 
 ** for Merb:
-  gem install rcov_stats #from gemcutter
+  gem install rcov_stats
   ## puts this dependency inside your config/init.rb file ##
   dependency "rcov_stats"
 ** for Rails
   ## puts this into Gemfile file ##
   gem "rcov_stats"
+
+  ## puts also this code to RakeFile (for Rails3 before Application.load_tasks)
+
+  begin
+    require 'rcov_stats_tasks'
+  rescue LoadError; end
+
 
 
 How to configure
