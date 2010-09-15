@@ -1,4 +1,4 @@
-module RcovStats
+module RcovStatsRelated
   class ErbBinding
 
     def initialize( options )

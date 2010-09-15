@@ -1,4 +1,4 @@
-module RcovStats
+module RcovStatsRelated
   module Integrations
     module Rspec
 
