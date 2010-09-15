@@ -86,10 +86,12 @@ class RcovStats
 
   def generate_index
     Dir[File.join(self.class.rcov_stats_dir, '..', 'templates/*')].each do |i|
+      FileUtils.mkdir_p File.join(self.class.root, 'coverage')
       FileUtils.cp(i, File.join(self.class.root, 'coverage', i.split("/").last))
     end
 
     @sections.each do |i|
+      FileUtils.mkdir_p File.join(self.class.root, 'coverage', i)
       coverage_index = File.join(self.class.root, 'coverage', i, "index.html")
       next unless File.exists?(coverage_index)
       doc = open(coverage_index) { |f| Hpricot(f) }
