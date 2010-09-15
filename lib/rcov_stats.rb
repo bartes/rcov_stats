@@ -2,21 +2,6 @@ require "fileutils"
 require "erb"
 require "hpricot"
 
-class RcovStatsForErb
-
-  def initialize( options )
-    options.each_pair do |key, value|
-      instance_variable_set(:"@#{key}",value)
-    end
-  end
-
-  def get_binding
-    binding
-  end
-
-end
-
-
 class RcovStats
 
   TYPES = ["units", "functionals"]
@@ -26,14 +11,15 @@ class RcovStats
     self.send("#{name}=", value) if value
   end
 
-  cattr_accessor_with_default :is_rails, Object.const_defined?('Rails')
-  cattr_accessor_with_default :is_merb, Object.const_defined?('Merb')
+  cattr_accessor_with_default :is_rails, defined?(Rails)
+  cattr_accessor_with_default :is_merb, defined?(Merb)
   cattr_accessor_with_default :root, ((@@is_rails && Rails.root) or (@@is_merb && Merb.root) or nil)
+
+  raise "Rcov Stats could not detect Rails or Merb framework" unless @@root
+  
   cattr_accessor_with_default :rcov_stats_dir, File.dirname(__FILE__)
   cattr_accessor_with_default :rcov_stats_config_file, File.join(@@root, 'config', 'rcov_stats.yml')
-  cattr_accessor_with_default :use_rspec, File.exists?(File.join(@@root, 'spec'))
-  cattr_accessor_with_default :test_name, @@use_rspec ? "spec" : "test"
-  cattr_accessor_with_default :test_file_indicator, "*_#{@@test_name}.rb"
+
   cattr_accessor_with_default :cover_file_indicator, "*.rb"
 
   attr_accessor :name, :sections
@@ -68,7 +54,7 @@ class RcovStats
   def parse_file_to_test(list)
     result = []
     list.each do |f|
-      file_list = File.directory?(File.join(@@root, @@test_name, f)) ? File.join(@@test_name, f, "**", @@test_file_indicator) : File.join(@@test_name, f)
+      file_list = File.directory?(File.join(@@root, test_name, f)) ? File.join(test_name, f, "**", test_file_indicator) : File.join(test_name, f)
       unless (list_of_read_files = Dir[file_list]).empty?
         result += list_of_read_files
       end
@@ -87,43 +73,14 @@ class RcovStats
     result.uniq
   end
 
-  def invoke_rcov_task
-    require 'rake/win32'
-    files_to_cover_parsed = parse_file_to_cover(files_to_cover).map { |f| "(#{f})".gsub("/", "\/") }.join("|")
-    rcov_settings = "--sort coverage --text-summary -x \"^(?!(#{files_to_cover_parsed}))\" "
-    rcov_settings +="--output=#{File.join(@@root, "coverage", @name)} "
-    rcov_tests = parse_file_to_test(files_to_test)
-    return false if rcov_tests.empty?
-    rcov_settings += rcov_tests.join(' ')
-    cmd = "bundle exec rcov #{rcov_settings}"
-    Rake::Win32.windows? ? Rake::Win32.rake_system(cmd) : system(cmd)
-  end
-
-  def invoke_rcov_spec_task
-    require 'spec/rake/spectask'
-    rcov_tests = parse_file_to_test(files_to_test)
-    return false if rcov_tests.empty?
-    Spec::Rake::SpecTask.new(@name) do |t|
-      spec_opts = File.join(@@root, @@test_name, 'spec.opts')
-      t.spec_opts = ['--options', "\"#{spec_opts}\""] if File.exists?(spec_opts)
-      t.spec_files = rcov_tests
-      t.rcov = true
-      t.rcov_dir =  File.join(@@root, "coverage", @name)
-      files_to_cover_parsed = parse_file_to_cover(files_to_cover).map { |f| "(#{f})".gsub("/", "\/") }.join("|")
-      t.rcov_opts = ["--text-summary", "--sort", "coverage", "-x", "\"^(?!(#{files_to_cover_parsed}))\""]
-    end
-  end
-
-  def invoke
-    @@use_rspec ? invoke_rcov_spec_task : invoke_rcov_task
+  def test_file_indicator
+    "*_#{test_name}.rb"
   end
 
   def generate_index
     Dir[File.join(@@rcov_stats_dir, '..', 'templates/*')].each do |i|
       FileUtils.cp(i, File.join(@@root, 'coverage', i.split("/").last))
     end
-
-
 
     @sections.each do |i|
       coverage_index = File.join(@@root, 'coverage', i, "index.html")
@@ -148,7 +105,7 @@ class RcovStats
       template_source = ERB.new(IO.read(File.join(@@root, 'coverage', "index.html")))
 
       File.open(File.join(@@root, 'coverage', "index.html"), "w+") do |f|
-        f.write( template_source.result(RcovStatsForErb.new(template_object).get_binding))
+        f.write( template_source.result(RcovStats::ErbBinding.new(template_object).get_binding))
       end
     end
   end
@@ -158,7 +115,20 @@ class RcovStats
       Merb::Plugins.add_rakefiles(File.join(@@rcov_stats_dir, "rcov_stats_tasks"))
     end
     unless File.exists?(@@rcov_stats_config_file)
-      which_conf_use = (@@use_rspec ? 'rcov_rspec' : 'rcov_standard') + '.yml'
+      if defined?(RSpec)
+        require 'rcov_stats/integrations/rspec2'
+        include RcovStats::Integrations::Rspec2
+        which_conf_use =  'rcov_rspec'
+      elsif defined?(Spec)
+        require 'rcov_stats/integrations/rspec2'
+        include RcovStats::Integrations::Rspec
+        which_conf_use =  'rcov_rspec'
+      else
+        require 'rcov_stats/integrations/test_unit'
+        include RcovStats::Integrations::TestUnit
+        which_conf_use = 'rcov_standard'
+      end
+      which_conf_use += '.yml'
       FileUtils.cp(File.join(@@rcov_stats_dir, '..', 'config', which_conf_use), @@rcov_stats_config_file)
     end
   end
