@@ -89,6 +89,8 @@ class RcovStats
       FileUtils.cp(i, File.join(self.class.root, 'coverage', i.split("/").last))
     end
 
+    template_object = {}
+
     @sections.each do |i|
       FileUtils.mkdir_p File.join(self.class.root, 'coverage', i)
       coverage_index = File.join(self.class.root, 'coverage', i, "index.html")
@@ -98,7 +100,6 @@ class RcovStats
       footer_div_covered = doc.search("//tfoot/tr/td//div[@class='covered']")
       footer_div_uncovered = doc.search("//tfoot/tr/td//div[@class='uncovered']")
 
-      template_object = {}
       template_object["#{i}_total_lines"] = footer_tts[0].inner_text
       template_object["#{i}_code_lines"] =  footer_tts[1].inner_text
       template_object["#{i}_total_result"] = footer_tts[2].inner_text
@@ -107,14 +108,13 @@ class RcovStats
       template_object["#{i}_total_cpx"] =  footer_div_covered[1].get_attribute("style")
       template_object["#{i}_total_lrpx"] = footer_div_uncovered[0].get_attribute("style")
       template_object["#{i}_total_lcpx"] =  footer_div_uncovered[1].get_attribute("style")
-      template_object["generated_on"] = "Generated on #{Time.now}"
+    end
+    
+    template_object["generated_on"] = "Generated on #{Time.now}"
+    template_source = ERB.new(IO.read(File.join(self.class.root, 'coverage', "index.html")))
 
-
-      template_source = ERB.new(IO.read(File.join(self.class.root, 'coverage', "index.html")))
-
-      File.open(File.join(self.class.root, 'coverage', "index.html"), "w+") do |f|
-        f.write( template_source.result(RcovStatsRelated::ErbBinding.new(template_object).get_binding))
-      end
+    File.open(File.join(self.class.root, 'coverage', "index.html"), "w+") do |f|
+      f.write( template_source.result(RcovStatsRelated::ErbBinding.new(template_object).get_binding))
     end
   end
 

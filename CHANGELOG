@@ -1,3 +1,5 @@
+2.2.1 (September 2010)
+  fixed generating index.html coverage summary values
 2.2.0 (September 2010)
   fixed root paths
   added rspec2 support
