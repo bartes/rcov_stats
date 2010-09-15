@@ -14,7 +14,11 @@ class RcovStats
 
   cattr_accessor_with_default :is_rails, defined?(Rails)
   cattr_accessor_with_default :is_merb, defined?(Merb)
-  cattr_accessor_with_default :root, ((is_rails && Rails.root) or (is_merb && Merb.root) or nil)
+  #cattr_accessor_with_default :root, ((is_rails && Rails.root) or (is_merb && Merb.root) or nil)
+
+  def self.root
+    "."
+  end
 
   raise "Rcov Stats could not detect Rails or Merb framework" unless root
   
@@ -24,6 +28,8 @@ class RcovStats
   cattr_accessor_with_default :cover_file_indicator, "*.rb"
 
   attr_accessor :name, :sections
+
+
 
   def initialize(name_, sections_ = nil)
     self.name = name_
@@ -109,6 +115,10 @@ class RcovStats
         f.write( template_source.result(RcovStatsRelated::ErbBinding.new(template_object).get_binding))
       end
     end
+  end
+
+  def bundler?
+    File.exist?("./Gemfile")
   end
 
   def self.setup

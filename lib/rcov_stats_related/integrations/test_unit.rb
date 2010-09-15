@@ -10,7 +10,7 @@ module RcovStatsRelated
         rcov_tests = parse_file_to_test(files_to_test)
         return false if rcov_tests.empty?
         rcov_settings += rcov_tests.join(' ')
-        cmd = "bundle exec rcov #{rcov_settings}"
+        cmd = "#{'bundle exec' if bundler?} rcov #{rcov_settings}"
         Rake::Win32.windows? ? Rake::Win32.rake_system(cmd) : system(cmd)
       end
 
