@@ -8,8 +8,6 @@ module RcovStatsRelated
         rcov_tests = parse_file_to_test(files_to_test)
         return false if rcov_tests.empty?
         Spec::Rake::SpecTask.new(@name) do |t|
-          spec_opts = File.join(self.class.root, self.class.test_name, 'spec.opts')
-          t.spec_opts = ['--options', "\"#{spec_opts}\""] if File.exists?(spec_opts)
           t.spec_files = rcov_tests
           t.rcov = true
           t.rcov_dir =  File.join(self.class.root, "coverage", @name)
