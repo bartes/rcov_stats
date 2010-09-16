@@ -1,7 +1,7 @@
 require "fileutils"
 require "erb"
 require "hpricot"
-require 'rcov_stats_related/erb_binding'
+require File.expand_path(File.dirname(__FILE__) + '/rcov_stats_related/erb_binding')
 
 class RcovStats
 

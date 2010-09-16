@@ -1,3 +1,5 @@
+2.2.2 (September 2010)
+  fixed requiring path for rails 2.3.x
 2.2.1 (September 2010)
   fixed generating index.html coverage summary values
 2.2.0 (September 2010)
